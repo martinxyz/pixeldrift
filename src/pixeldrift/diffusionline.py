@@ -65,11 +65,13 @@ def linepass_v3(line, line_cmd):
     # diff[cmd_a == 1] = diff[cmd_a == 1].clip(0, 1) # diff_clump[cmd == 1]
 
     cond1 = (cmd_a == 1) & (cmd_b == 0)
-    diff[cond1] = diff_clump[cond1]
+    # diff[cond1] = diff_clump[cond1]
+    diff = np.where(cond1, diff_clump, diff)
 
     # cond2 = (cmd_a == 0) & (cmd_b == 1)
     cond2 = (cmd_b == 1)
-    diff[cond2] = diff_anti[cond2]  # diff[cond2].clip(0, 1)
+    # diff[cond2] = diff_anti[cond2]  # diff[cond2].clip(0, 1)
+    diff = np.where(cond2, diff_anti, diff)
 
     b_new = (b + diff).clip(0, 15)
     diff = b_new - b
@@ -100,7 +102,7 @@ for it in range(800):
         # if data[N//2, N//2] < 15:
         r = 2
         # data[N//2-r:N//2+r+1, N//2-r:N//2+r+1] = 15
-        data[8::16, 8::16] = 15
+        data[8::16, 8::16] = data[8::16, 8::16].clip(3, 15)
     # else:
     #     data[N//2, N//2] = 0
 
