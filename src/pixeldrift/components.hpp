@@ -10,7 +10,7 @@
 // };
 
 struct Vision {
-  bool occupied[6];
+  bool occupied[7];
   // bool food[6];
 };
 
@@ -21,9 +21,10 @@ struct Position {
 struct TuringHead {
   uint32_t state;
   struct Command {
-    uint8_t output : 1;
-    uint8_t movement : 3;
-    uint8_t state : 4;
+    uint8_t value;
+    bool get_output() { return value & 1; }
+    bool get_movement() { return (value >> 1) & ((1<<3)-1); }
+    bool get_state() { return value >> 4; }
   };
   Command * command_lut;
 };
@@ -35,18 +36,4 @@ enum Component {
   kPosition,
   kMovement,
   kTuringHead,
-};
-
-constexpr int MAX_ENTITIES = 500;
-struct World {
-  int mask[MAX_ENTITIES];
-  // ActionInput input[MAX_ENTITIES];
-  Vision vision[MAX_ENTITIES];
-  Position position[MAX_ENTITIES];
-  TuringHead turing_head[MAX_ENTITIES];
-
-  TileContent map[tile_size * tile_size];
-  TileContent& at(int x, int y) {
-    return map[y*tile_size + x];
-  }
 };

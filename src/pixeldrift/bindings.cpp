@@ -3,6 +3,7 @@
 #include <pybind11/numpy.h>
 #include <cstdint>
 #include "systems.hpp"
+#include "turing_head.hpp"
 
 namespace py = pybind11;
 
@@ -24,13 +25,53 @@ auto f(array_u8 &arr) {
   // return 5;
 }
 
+auto extract_tile(array_u8 &arr) {
+  // auto info = arr.request();
+  // arr[2] = 3;
+  arr.mutable_at(5) = arr.at(5) + 2;
+  // return arr.at(5); // info.shape[0];
+  // auto res = py::array_t<int16_t>({5});
+  // auto res = py::array_t<uint16_t>({3}, {}, sdata);
+  auto res = py::array_t<uint16_t>({}, {}, sdata.data());
+  // auto res = array_u8<uint8_t>(sdata);
+  // arr.mutable_at(1) = 99;
+  // return res;
+  // return 5;
+}
+
+array_u8 get_particles(World &world) {
+  constexpr int N = tile_size*tile_size;
+  auto result = array_u8(N);
+  auto buf = static_cast<uint8_t*>(result.request().ptr);
+  for (int i=0; i<N; i++) {
+    buf[i] = world.map[i].particle ? 255 : 0;
+  }
+  result.resize({tile_size, tile_size});
+  return result;
+}
+
+void turing_head_set_lut(TuringHeads &th, array_u8 &arr) {
+  auto info = arr.request();
+  if (info.shape[0] != TuringHeads::lut_size) abort();
+  th.set_lut(info.ptr);
+}
+
 PYBIND11_MODULE(pixeldrift, m) {
   // py::module m("pixeldrift");
 
-  m.def("f", &f);
+  // m.def("f", &f);
 
-  py::class_<DiffusionTile>(m, "DiffusionTile")
-      .def(py::init<>());
-      // .def_readonly_static("size", &DiffusionMap::size);
-      // .def_readwrite("arr", &DiffusionTile::arr);
+  // py::class_<TileContent>(m, "TileContent");
+  py::class_<World>(m, "World")
+      .def(py::init<>())
+      .def("get_particles", &get_particles)
+      .def("tick", &World::tick);
+      // .def_readonly("map", &World::map);
+  // .def_readonly_static("size", &DiffusionMap::size);
+  // .def_readwrite("arr", &DiffusionTile::arr);
+
+  py::class_<TuringHeads>(m, "TuringHeads")
+      .def(py::init<>())
+      .def("add_head", &TuringHeads::add_head)
+      .def("set_lut", &turing_head_set_lut);
 }
