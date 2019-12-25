@@ -6,7 +6,7 @@
 void sensor_system_tick(struct World * world);
 void turing_head_system_tick(struct World * world);
 
-constexpr int MAX_ENTITIES = 500;
+constexpr int MAX_ENTITIES = 4;
 struct World {
   int mask[MAX_ENTITIES];
   // ActionInput input[MAX_ENTITIES];
@@ -16,6 +16,8 @@ struct World {
 
   TileContent map[tile_size * tile_size]{};
   TileContent& at(int x, int y) {
+    x = static_cast<unsigned>(x) % tile_size;
+    y = static_cast<unsigned>(y) % tile_size;
     return map[y*tile_size + x];
   }
 
@@ -23,9 +25,12 @@ struct World {
     bzero(mask, sizeof(mask));
     bzero(map, sizeof(map));
   }
-  void tick() {
-    sensor_system_tick(this);
-    turing_head_system_tick(this);
+
+  void tick(int n=1) {
+    for (int i = 0; i < n; ++i) {
+      sensor_system_tick(this);
+      turing_head_system_tick(this);
+    }
   }
 
   int first_unused_entity() {

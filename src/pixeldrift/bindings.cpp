@@ -57,9 +57,7 @@ void turing_head_set_lut(TuringHeads &th, array_u8 &arr) {
 }
 
 PYBIND11_MODULE(pixeldrift, m) {
-  // py::module m("pixeldrift");
-
-  // m.def("f", &f);
+  m.attr("tile_size") = tile_size;
 
   // py::class_<TileContent>(m, "TileContent");
   py::class_<World>(m, "World")

@@ -30,11 +30,11 @@ void turing_head_system_tick(struct World * world) {
     //   x += delta.dx;
     //   y += delta.dy;
     // }
-    x = (x + delta.dx) & (1 - tile_size);
-    y = (y + delta.dy) & (1 - tile_size);
+    x += delta.dx;
+    y += delta.dy;
 
-    world->position[ent].x += x;
-    world->position[ent].y += y;
+    world->position[ent].x = x;
+    world->position[ent].y = y;
   }
 }
 

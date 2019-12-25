@@ -29,7 +29,7 @@ constexpr struct { int dx, dy; } kDirectionToDelta[]{
   {-1,+1},
   {-1, 0},
   { 0,-1},
-  {-1,+1},
+  {+1,-1},
   { 0, 0},
   { 0, 0},
 };

@@ -22,3 +22,5 @@ __pycache__
 *.app
 compile_commands.json
 core
+output*.png
+output*.txt
