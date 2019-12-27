@@ -4,12 +4,8 @@
 #include "world.hpp"
 
 void turing_head_system_tick(struct World * world) {
-  auto view = world->registry.view<TuringHead, Vision, Position>();
-  for (auto entity: view) {
-    auto &turing_head = view.get<TuringHead>(entity);
-    auto &vision = view.get<Vision>(entity);
-    auto &position = view.get<Position>(entity);
-
+  world->registry.view<TuringHead, Vision, Position>()
+  .each([world](auto &turing_head, auto &vision, auto &position) {
     uint8_t current_state = turing_head.state;
     auto &occ = vision.occupied;
 
@@ -37,7 +33,7 @@ void turing_head_system_tick(struct World * world) {
 
     position.x = x;
     position.y = y;
-  }
+  });
 }
 
 class TuringHeads

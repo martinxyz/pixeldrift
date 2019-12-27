@@ -21,16 +21,14 @@ def random_lut():
   return (next_output | (next_movement << 1) | (next_state << 4)).astype('uint8')
 
 
+
+w = World()
+th = TuringHeads()
+th.add_head(w, pixeldrift.tile_size//2, pixeldrift.tile_size//2)
 t0 = time.time()
-for j in range(100):
-  w = World()
-
-  th = TuringHeads()
-  th.add_head(w, pixeldrift.tile_size//2, pixeldrift.tile_size//2)
-
+for j in range(500):
   th.set_lut(random_lut())
-  for i in range(200_000):
-    w.tick(100)
-  pixeldrift.render(w.get_particles(), f'output_{j:04}.png')
+  for i in range(10):
+    w.tick(1000)
 print('time.time() - t0:', time.time() - t0)
-
+# pixeldrift.render(w.get_particles(), f'output_{j:04}.png')

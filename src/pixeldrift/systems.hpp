@@ -2,10 +2,8 @@
 #include "world.hpp"
 
 void sensor_system_tick(struct World * world) {
-  auto view = world->registry.view<Vision, Position>();
-  for (auto entity: view) {
-    auto &vision = view.get<Vision>(entity);
-    auto &position = view.get<Position>(entity);
+  world->registry.view<Vision, Position>()
+  .each([world](auto &vision, auto &position) {
     int x = position.x;
     int y = position.y;
     auto &occ = vision.occupied;
@@ -19,5 +17,5 @@ void sensor_system_tick(struct World * world) {
     occ[4] = get(+1,  0);
     occ[5] = get(-1, +1);
     occ[6] = get( 0, +1);
-  }
+  });
 }
