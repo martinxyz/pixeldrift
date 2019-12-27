@@ -4,12 +4,14 @@
 #include "world.hpp"
 
 void turing_head_system_tick(struct World * world) {
-  const int mask = (1 << kTuringHead) | (1 << kPosition) | (1 << kVision);
-  for (int ent = 0; ent < MAX_ENTITIES; ent++) {
-    if (!(world->mask[ent] & mask)) continue;
+  auto view = world->registry.view<TuringHead, Vision, Position>();
+  for (auto entity: view) {
+    auto &turing_head = view.get<TuringHead>(entity);
+    auto &vision = view.get<Vision>(entity);
+    auto &position = view.get<Position>(entity);
 
-    uint8_t current_state = world->turing_head[ent].state;
-    auto &occ = world->vision[ent].occupied;
+    uint8_t current_state = turing_head.state;
+    auto &occ = vision.occupied;
 
     uint16_t key = 0;
     for (int i=0; i<7; i++) {
@@ -18,12 +20,12 @@ void turing_head_system_tick(struct World * world) {
     key |= (current_state & 0xF) << 7;
 
     TuringHead::Command cmd;
-    cmd = world->turing_head[ent].command_lut[key];
+    cmd = turing_head.command_lut[key];
 
-    int x = world->position[ent].x;
-    int y = world->position[ent].y;
+    int x = position.x;
+    int y = position.y;
     world->at(x, y).particle = cmd.get_output();
-    world->turing_head[ent].state = cmd.get_state();
+    turing_head.state = cmd.get_state();
 
     auto delta = kDirectionToDelta[cmd.get_movement()];
     // if (world->at(x+delta.dx, y+delta.dy).block != kBorder) {
@@ -33,8 +35,8 @@ void turing_head_system_tick(struct World * world) {
     x += delta.dx;
     y += delta.dy;
 
-    world->position[ent].x = x;
-    world->position[ent].y = y;
+    position.x = x;
+    position.y = y;
   }
 }
 
@@ -44,22 +46,18 @@ class TuringHeads
   constexpr static int lut_size = 1 << (7 + 4);
 
  private:
-  TuringHead::Command lut_[lut_size]{0};
+  TuringHead::Command lut_[lut_size]{{0}};
   std::vector<int> managed_entities_;
 
  public:
   void add_head(World *w, int pos_x, int pos_y) {
-    int ent = w->first_unused_entity();
+    auto entity = w->registry.create();
+    auto &turing_head = w->registry.assign<TuringHead>(entity);
+    turing_head.command_lut = lut_;
+    turing_head.state = 0;
 
-    w->turing_head[ent].command_lut = lut_;
-    w->turing_head[ent].state = 0;
-    w->mask[ent] |= 1 << kTuringHead;
-
-    w->position[ent] = {pos_x, pos_y};
-    w->mask[ent] |= 1 << kPosition;
-
-    w->vision[ent] = {};
-    w->mask[ent] |= 1 << kVision;
+    w->registry.assign<Position>(entity) = {pos_x, pos_y};
+    w->registry.assign<Vision>(entity);
   }
 
   void set_lut(void * data) {

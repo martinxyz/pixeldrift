@@ -2,12 +2,13 @@
 #include "world.hpp"
 
 void sensor_system_tick(struct World * world) {
-  const int mask = (1 << kVision) | (1 << kPosition);
-  for (int ent = 0; ent < MAX_ENTITIES; ent++) {
-    if (!(world->mask[ent] & mask)) continue;
-    int x = world->position[ent].x;
-    int y = world->position[ent].y;
-    auto &occ = world->vision[ent].occupied;
+  auto view = world->registry.view<Vision, Position>();
+  for (auto entity: view) {
+    auto &vision = view.get<Vision>(entity);
+    auto &position = view.get<Position>(entity);
+    int x = position.x;
+    int y = position.y;
+    auto &occ = vision.occupied;
     auto get = [world, x, y](int dx, int dy) {
       return world->at(x+dx, y+dy).particle;
     };
