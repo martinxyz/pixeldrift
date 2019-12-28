@@ -26,9 +26,10 @@ w = World()
 th = TuringHeads()
 th.add_head(w, pixeldrift.tile_size//2, pixeldrift.tile_size//2)
 t0 = time.time()
-for j in range(500):
+for j in range(50):
   th.set_lut(random_lut())
   for i in range(10):
-    w.tick(1000)
+    w.tick(10000)
 print('time.time() - t0:', time.time() - t0)
 # pixeldrift.render(w.get_particles(), f'output_{j:04}.png')
+pixeldrift.render(w.get_particles(), f'output.png')

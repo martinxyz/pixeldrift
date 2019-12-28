@@ -8,7 +8,7 @@ void sensor_system_tick(struct World * world) {
     int y = position.y;
     auto &occ = vision.occupied;
     auto get = [world, x, y](int dx, int dy) {
-      return world->at(x+dx, y+dy).particle;
+      return world->map.at(x+dx, y+dy).particle;
     };
     occ[0] = get( 0, -1);
     occ[1] = get(-1, -1);

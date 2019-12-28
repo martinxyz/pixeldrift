@@ -20,7 +20,7 @@ void turing_head_system_tick(struct World * world) {
 
     int x = position.x;
     int y = position.y;
-    world->at(x, y).particle = cmd.get_output();
+    world->map.at(x, y).particle = cmd.get_output();
     turing_head.state = cmd.get_state();
 
     auto delta = kDirectionToDelta[cmd.get_movement()];

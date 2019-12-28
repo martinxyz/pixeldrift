@@ -40,13 +40,15 @@ auto extract_tile(array_u8 &arr) {
 }
 
 array_u8 get_particles(World &world) {
-  constexpr int N = tile_size*tile_size;
-  auto result = array_u8(N);
+  constexpr int N = Tile::size;
+  auto result = array_u8(N*N);
   auto buf = static_cast<uint8_t*>(result.request().ptr);
-  for (int i=0; i<N; i++) {
-    buf[i] = world.map[i].particle ? 255 : 0;
+  for (int y=0; y<N; y++) {
+    for (int x=0; x<N; x++) {
+      buf[y*N+x] = world.map.at(x, y).particle ? 255 : 0;
+    }
   }
-  result.resize({tile_size, tile_size});
+  result.resize({N, N});
   return result;
 }
 
@@ -57,7 +59,7 @@ void turing_head_set_lut(TuringHeads &th, array_u8 &arr) {
 }
 
 PYBIND11_MODULE(pixeldrift, m) {
-  m.attr("tile_size") = tile_size;
+  m.attr("tile_size") = Tile::size;
 
   // py::class_<TileContent>(m, "TileContent");
   py::class_<World>(m, "World")
