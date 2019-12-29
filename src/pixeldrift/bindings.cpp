@@ -9,6 +9,7 @@ namespace py = pybind11;
 
 using array_u8 = py::array_t<uint8_t, py::array::c_style>;
 
+/*
 static std::array<uint16_t, 3> sdata{4,5,6};
 
 auto f(array_u8 &arr) {
@@ -38,23 +39,29 @@ auto extract_tile(array_u8 &arr) {
   // return res;
   // return 5;
 }
+*/
 
-array_u8 get_particles(World &world) {
-  constexpr int N = Tile::size;
-  auto result = array_u8(N*N);
+array_u8 get_particles(World &world, int x0, int y0, int w, int h) {
+  if (w < 0) throw std::invalid_argument("w must be positive or zero");
+  if (h < 0) throw std::invalid_argument("h must be positive or zero");
+  if (w == 0) w = Tile::size;
+  if (h == 0) h = Tile::size;
+  auto result = array_u8(w*h);
   auto buf = static_cast<uint8_t*>(result.request().ptr);
-  for (int y=0; y<N; y++) {
-    for (int x=0; x<N; x++) {
-      buf[y*N+x] = world.map.at(x, y).particle ? 255 : 0;
+  for (int y=y0; y<y0+h; y++) {
+    for (int x=x0; x<x0+w; x++) {
+      buf[y*h+x] = world.map.at(x-y/2, y).particle ? 255 : 0;
     }
   }
-  result.resize({N, N});
+  result.resize({h, w});
   return result;
 }
 
 void turing_head_set_lut(TuringHeads &th, array_u8 &arr) {
   auto info = arr.request();
-  if (info.shape[0] != TuringHeads::lut_size) abort();
+  if (info.shape[0] != TuringHeads::lut_size) {
+    throw std::out_of_range("wrong shape of lut array");
+  }
   th.set_lut(info.ptr);
 }
 

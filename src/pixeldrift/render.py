@@ -8,7 +8,7 @@ def render(img, filename):
     w = sqrt(3)
     h = 2
 
-    W = size * w * (img.shape[0] + img.shape[1]/2)
+    W = size * w * (img.shape[0] + 1/2)
     H = size * h * (img.shape[0] * 3/4 + 1/4)
     surf = cairo.ImageSurface(cairo.FORMAT_RGB24, int(ceil(W)), int(ceil(H)))
 
@@ -26,7 +26,7 @@ def render(img, filename):
             else:
                 cr.set_source_rgba(0.2, 0.2, 0.2, 1.0)
             cr.save()
-            cr.translate((x+y/2)*w, y*3/4*h)  # to center of hex
+            cr.translate((x+(0.5 if y%2 == 1 else 0))*w, y*3/4*h)  # to center of hex
             cr.move_to(0, -1/2*h)
             cr.line_to(+1/2*w, -1/4*h)
             cr.line_to(+1/2*w, +1/4*h)

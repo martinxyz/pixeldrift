@@ -22,7 +22,7 @@ def random_lut():
 
 w = World()
 th = TuringHeads()
-th.add_head(w, pixeldrift.tile_size//2, pixeldrift.tile_size//2)
+th.add_head(w._world, pixeldrift.tile_size//2, pixeldrift.tile_size//2)
 t0 = time.time()
 for j in range(50):
     th.set_lut(random_lut())
