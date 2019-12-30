@@ -46,7 +46,7 @@ class TuringHeads
   std::vector<int> managed_entities_;
 
  public:
-  void add_head(World *w, int pos_x, int pos_y) {
+  void add_instance(World *w, int pos_x, int pos_y) {
     auto entity = w->registry.create();
     auto &turing_head = w->registry.assign<TuringHead>(entity);
     turing_head.command_lut = lut_;

@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <vector>
 
 struct TileContent {
   uint8_t block : 4;
@@ -8,7 +9,7 @@ struct TileContent {
 };
 
 struct Tile {
-  static constexpr int size_log2 = 9;
+  static constexpr int size_log2 = 7;
   static constexpr int size = (1 << size_log2);
   static constexpr int padding = 2;
 
@@ -27,6 +28,9 @@ class TorusTileStore {
     x = (static_cast<unsigned>(x) % Tile::size) + tile_.padding;
     y = (static_cast<unsigned>(y) % Tile::size) + tile_.padding;
     return tile_.data[y*tile_.stride_y + x];
+  }
+  std::vector<Tile*> iter_tiles() {
+    return std::vector<Tile*>{&tile_};
   }
  private:
   Tile tile_{};

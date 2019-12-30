@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 import time
 from numpy.random import randint
-import pixeldrift
-from pixeldrift import World, TuringHeads
+from pixeldrift import World, TuringHeads, tile_size, render_cells
 
 
 def random_lut():
@@ -22,12 +21,12 @@ def random_lut():
 
 w = World()
 th = TuringHeads()
-th.add_head(w._world, pixeldrift.tile_size//2, pixeldrift.tile_size//2)
+
+w.add_turing_head(th, tile_size//2, tile_size//2)
 t0 = time.time()
 for j in range(50):
     th.set_lut(random_lut())
-    for i in range(10):
-        w.tick(10000)
+    w.tick(10_000)
 print('time.time() - t0:', time.time() - t0)
-# pixeldrift.render(w.get_particles(), f'output_{j:04}.png')
-pixeldrift.render(w.get_particles(), f'output.png')
+# render_cells(w.cells, f'output_{j:04}.png')
+render_cells(w.cells, f'output.png')
