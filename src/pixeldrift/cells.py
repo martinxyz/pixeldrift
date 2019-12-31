@@ -14,6 +14,11 @@ class Cells():
     def __init__(self, _storage=None):
         self._cells = _storage or _World()
 
+    def copy(self):
+        copy = Cells()
+        copy.set_data(self.get_data())
+        return copy
+
     def get_bbox(self):
         """Get a minimal bounding box that includes all core cells"""
         return (0, 0, tile_size, tile_size)
@@ -54,3 +59,7 @@ class Cells():
         if x1 > x0 and y1 > y0:
             res[y0:y1, x0:x1] = True
         return res
+
+    def apply_lut_filter(self, lut):
+        self._cells.apply_lut_filter(lut)
+        return self

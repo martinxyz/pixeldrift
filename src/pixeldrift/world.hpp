@@ -18,23 +18,23 @@ struct World {
     }
   }
 
-  /*
-  void apply_filter_lut(uint8_t * lut) {
+  void apply_lut_filter(uint8_t * lut) {
+    map.update_borders();
     for (Tile* tile: map.iter_tiles()) {
       Tile old_tile{*tile};
+      TileContent * old_data = old_tile.data_inside();
+      TileContent * new_data = tile->data_inside();
       for (int y=0; y<Tile::size; y++) {
         for (int x=0; x<Tile::size; x++) {
           int key = 0;
           for (int i=0; i<7; i++) {
             auto delta = kDirectionToDelta[i];
-            TileContent &tc = old_tile.data[(y+delta.dy)*Tile::stride_y + x+delta.dx];
+            TileContent &tc = old_data[(y+delta.dy)*Tile::stride_y + x+delta.dx];
             key |= tc.particle << i;
           }
-          tile->data[y*Tile::stride_y + x].particle = lut[key] & 1;
+          new_data[y*Tile::stride_y + x].particle = lut[key] & 1;
         }
       }
     }
-    // TODO: map.restore_borders();
   }
-  */
 };

@@ -17,6 +17,9 @@ struct Tile {
   static constexpr int stride_x = 1;
   static constexpr int stride_y = size+2*padding;
   static constexpr int stride_z = stride_y - stride_x;
+  TileContent * data_inside() {
+    return data + padding*stride_y + padding*stride_x;
+  }
 };
 
 class TorusTileStore {
@@ -31,6 +34,19 @@ class TorusTileStore {
   }
   std::vector<Tile*> iter_tiles() {
     return std::vector<Tile*>{&tile_};
+  }
+  void update_borders() {
+    constexpr int size = Tile::size;
+    constexpr int padding = Tile::padding;
+    constexpr int h = Tile::stride_y;
+    for (int i=0; i<size + 2*padding; i++) {
+      for (int k=0; k<padding; k++) {
+        tile_.data[i*h + k] = tile_.data[i*h + k+size];
+        tile_.data[i*h + padding+size+k] = tile_.data[i*h + padding+k];
+        tile_.data[(k)*h + i] = tile_.data[(k+size)*h + (i+size/2)%size];
+        tile_.data[(padding+size+k)*h + i] = tile_.data[(padding+k)*h + (i+size/2)%size];
+      }
+    }
   }
  private:
   Tile tile_{};

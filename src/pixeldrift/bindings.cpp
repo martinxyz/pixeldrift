@@ -49,9 +49,17 @@ void set_particles(World &world, array_u8 &arr, int x0, int y0) {
 void turing_head_set_lut(TuringHeads &th, array_u8 &arr) {
   auto info = arr.request();
   if (info.shape[0] != TuringHeads::lut_size) {
-    throw std::invalid_argument("wrong shape of lut array");
+    throw std::invalid_argument("wrong size of lut array");
   }
   th.set_lut(info.ptr);
+}
+
+void apply_lut_filter(World &world, array_u8 &arr) {
+  auto info = arr.request();
+  if (info.shape[0] != 1 << 7) {
+    throw std::invalid_argument("wrong size of lut array");
+  }
+  world.apply_lut_filter(static_cast<uint8_t*>(info.ptr));
 }
 
 PYBIND11_MODULE(pixeldrift, m) {
@@ -61,6 +69,7 @@ PYBIND11_MODULE(pixeldrift, m) {
       .def(py::init<>())
       .def("get_particles", &get_particles)
       .def("set_particles", &set_particles)
+      .def("apply_lut_filter", &apply_lut_filter)
       .def("tick", &World::tick);
 
   py::class_<TuringHeads>(m, "TuringHeads")
