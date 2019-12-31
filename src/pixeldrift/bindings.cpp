@@ -14,11 +14,13 @@ array_u8 get_particles(World &world, int x0, int y0, int w, int h) {
   if (h <= 0) throw std::invalid_argument("h must be positive");
   auto result = array_u8(h*w);
   result.resize({h, w});
-  // API uses offset coordinates, while tile storage is axial
-  x0 -= static_cast<unsigned>(y0)/2;
+
   for (int y=0; y<h; y++) {
     for (int x=0; x<w; x++) {
-      uint8_t value = world.map.at((x+x0)-static_cast<unsigned>(y+y0)/2, (y+y0)).particle ? 1 : 0;
+      // API uses offset coordinates, while tile storage is axial
+      int x_axial = x0 + x - static_cast<unsigned>(y0 + y)/2;
+      int y_axial = y0 + y;
+      uint8_t value = world.map.at(x_axial, y_axial).particle ? 1 : 0;
       result.mutable_at(y, x) = value;
     }
   }
@@ -28,18 +30,18 @@ array_u8 get_particles(World &world, int x0, int y0, int w, int h) {
 void set_particles(World &world, array_u8 &arr, int x0, int y0) {
   auto info = arr.request();
   if (info.ndim != 2) {
-    throw std::out_of_range("wrong number of dimensions");
+    throw std::invalid_argument("wrong number of dimensions");
   }
   int h = info.shape[0];
   int w = info.shape[1];
 
-  // API uses offset coordinates, while tile storage is axial
-  x0 -= static_cast<unsigned>(y0)/2;
-
   for (int y=0; y<h; y++) {
     for (int x=0; x<w; x++) {
+      // API uses offset coordinates, while tile storage is axial
+      int x_axial = x0 + x - static_cast<unsigned>(y0 + y)/2;
+      int y_axial = y0 + y;
       uint8_t value = arr.at(y, x) ? 1 : 0;
-      world.map.at((x+x0)-static_cast<unsigned>(y+y0)/2, (y+y0)).particle = value;
+      world.map.at(x_axial, y_axial).particle = value;
     }
   }
 }
@@ -47,7 +49,7 @@ void set_particles(World &world, array_u8 &arr, int x0, int y0) {
 void turing_head_set_lut(TuringHeads &th, array_u8 &arr) {
   auto info = arr.request();
   if (info.shape[0] != TuringHeads::lut_size) {
-    throw std::out_of_range("wrong shape of lut array");
+    throw std::invalid_argument("wrong shape of lut array");
   }
   th.set_lut(info.ptr);
 }

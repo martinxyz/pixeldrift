@@ -24,7 +24,8 @@ class Cells():
         Returns a new numpy array of type 'uint8' and shape (h, w).
 
         The region may be smaller or larger than one tile. The returned array
-        uses offset coordinates. (The inputs x and y are also offset coordinates.)
+        uses offset coordinates. If y is even the array will be odd-rows-right,
+        otherwise odd-rows-left.
         """
         return self._cells.get_particles(x, y, w, h)
 
@@ -34,6 +35,8 @@ class Cells():
         Data must be a numpy array of type 'uint8' and can have any 2d-shape.
         It is possible to write into mirrored locations, and to overwrite the
         same core cell multiple times. The last written value will have effect.
+
+        Same offset coordinates apply as for get_data().
         """
         return self._cells.set_particles(data.astype('uint8'), x, y)
 

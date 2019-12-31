@@ -2,6 +2,7 @@
 import time
 from numpy.random import randint
 from pixeldrift import World, TuringHeads, tile_size, render_cells
+import subprocess
 
 
 def random_lut():
@@ -19,14 +20,21 @@ def random_lut():
     res = next_output | (next_movement << 1) | (next_state << 4)
     return res.astype('uint8')
 
-w = World()
-th = TuringHeads()
+outputs = []
+for k in range(10):
+    w = World()
+    th = TuringHeads()
+    w.add_turing_head(th, tile_size//2, tile_size//2)
 
-w.add_turing_head(th, tile_size//2, tile_size//2)
-t0 = time.time()
-for j in range(50):
-    th.set_lut(random_lut())
-    w.tick(10_000)
-print('time.time() - t0:', time.time() - t0)
-# render_cells(w.cells, f'output_{j:04}.png')
-render_cells(w.cells, f'output.png')
+    t0 = time.time()
+    for j in range(5):
+        th.set_lut(random_lut())
+        w.tick(100_000)
+
+    print(f'turing drawing {k} created in {(time.time()-t0)*1000:.1f}ms')
+    filename = f'output_{k:04}.png'
+    render_cells(w.cells, filename, padding=5, grid=False)
+    outputs.append(filename)
+
+print('startig image viewer "feh"')
+subprocess.call(['feh'] + outputs)

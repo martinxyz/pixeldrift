@@ -20,11 +20,13 @@ class CellTest(unittest.TestCase):
 
     def test_data_tiling(self):
         cells = Cells()
-        data = np.random.randint(0, 1, size=(tile_size, tile_size))
-        cells.set_data(data)
-        assert_array_equal(cells.get_data(), data)
-        assert_array_equal(cells.get_data(x=tile_size), data)
-        assert_array_equal(cells.get_data(x=-tile_size, y=-30*tile_size), data)
+        data = np.random.randint(0, 2, size=(tile_size, tile_size))
+        for dx, dy in [(0, 0), (-tile_size, 0), (0, tile_size), (-7*tile_size, -9*tile_size)]:
+            msg = f'dx,dy: {dx, dy}'
+            cells.set_data(data, x=dx, y=dy)
+            assert_array_equal(cells.get_data(), data, msg)
+            assert_array_equal(cells.get_data(x=tile_size), data, msg)
+            assert_array_equal(cells.get_data(x=-tile_size, y=-30*tile_size), data, msg)
 
         cells.set_data(np.zeros((tile_size, tile_size)), -33, -11)
         self.assertTrue(np.all(cells.get_data() == 0))
@@ -36,12 +38,7 @@ class CellTest(unittest.TestCase):
         cells.set_data(data, -1, -1)
         self.assertEqual(np.sum(cells.get_data()), 2*7)
         self.assertEqual(np.sum(cells.get_data(-1, -1, 7, 2)), 2*7)
-
-        # FIXME: actually, when writing to an odd y-coordinate, I'm not sure
-        #        what the expected behaviour is for the 2nd row. In case we are
-        #        copy-pasting it maybe should be shifted?
-        # self.assertEqual(np.sum(cells.get_data(0, 0, 20, 20)), 6)  # FIXME why?
-
+        self.assertEqual(np.sum(cells.get_data(0, 0, 20, 20)), 6)
         self.assertEqual(np.sum(cells.get_data(-1, 0, 20, 20)), 7)
         self.assertEqual(np.sum(cells.get_data(0, -1, 20, 20)), 2*6)
 
