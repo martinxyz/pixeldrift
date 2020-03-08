@@ -17,3 +17,5 @@ target_compile_options(pixeldrift PRIVATE -Wall -Werror -Wextra)
 # https://community.arm.com/developer/tools-software/tools/b/tools-software-ides-blog/posts/compiler-flags-across-architectures-march-mtune-and-mcpu
 # on ARM: -mcpu=native
 # on x86: -march=native
+
+# target_compile_options(pixeldrift PRIVATE -O3 -mcpu=native -march=native)

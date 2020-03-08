@@ -63,3 +63,6 @@ class Cells():
     def apply_lut_filter(self, lut):
         self._cells.apply_lut_filter(lut)
         return self
+
+    def count_lut_filter(self, lut):
+        return self._cells.count_lut_filter(lut)

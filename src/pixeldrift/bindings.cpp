@@ -21,7 +21,7 @@ array_u8 get_particles(World &world, int x0, int y0, int w, int h) {
       int x_axial = x0 + x - static_cast<unsigned>(y0 + y)/2;
       int y_axial = y0 + y;
       uint8_t value = world.map.at(x_axial, y_axial).particle ? 1 : 0;
-      result.mutable_at(y, x) = value;
+      result.mutable_at(y, x) = value;   // lots of load instructions (numpy shape, writeable check, etc.)
     }
   }
   return result;
@@ -62,6 +62,14 @@ void apply_lut_filter(World &world, array_u8 &arr) {
   world.apply_lut_filter(static_cast<uint8_t*>(info.ptr));
 }
 
+double count_lut_filter(World &world, array_u8 &arr) {
+  auto info = arr.request();
+  if (info.shape[0] != 1 << 7) {
+    throw std::invalid_argument("wrong size of lut array");
+  }
+  return world.count_lut_filter(static_cast<uint8_t*>(info.ptr));
+}
+
 PYBIND11_MODULE(pixeldrift, m) {
   m.attr("tile_size") = Tile::size;
 
@@ -70,6 +78,7 @@ PYBIND11_MODULE(pixeldrift, m) {
       .def("get_particles", &get_particles)
       .def("set_particles", &set_particles)
       .def("apply_lut_filter", &apply_lut_filter)
+      .def("count_lut_filter", &count_lut_filter)
       .def("tick", &World::tick);
 
   py::class_<TuringHeads>(m, "TuringHeads")
