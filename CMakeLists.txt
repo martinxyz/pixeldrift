@@ -9,7 +9,7 @@ pybind11_add_module(pixeldrift ${SOURCES} "src/pixeldrift/bindings.cpp")
 target_include_directories(pixeldrift PRIVATE "src/pixeldrift")
 target_include_directories(pixeldrift PRIVATE "external/entt/src")
 
-set_property(TARGET pixeldrift PROPERTY CXX_STANDARD 17)
+set_property(TARGET pixeldrift PROPERTY CXX_STANDARD 20)
 set_property(TARGET pixeldrift PROPERTY CXX_STANDARD_REQUIRED ON)
 
 target_compile_options(pixeldrift PRIVATE -Wall -Werror -Wextra)

@@ -1,6 +1,12 @@
-from .pixeldrift import World as _World
+from .pixeldrift import World as _World, CellContent as _CellContent
 from .pixeldrift import tile_size
+from typing import NamedTuple, List
 import numpy as np
+
+class CellContent(NamedTuple):
+    cell_type: int = 0
+    child1_count: int = 0
+    particle: bool = False
 
 class Cells():
     """Represents a hexagonal grid of cells.
@@ -64,5 +70,33 @@ class Cells():
         self._cells.apply_lut_filter(lut)
         return self
 
-    def count_lut_filter(self, lut):
+    def count_lut_filter(self, lut) -> int:
         return self._cells.count_lut_filter(lut)
+
+    def set_cell(self, x: int, y: int, data: CellContent):
+        cc = _CellContent()
+        cc.cell_type = data.cell_type
+        cc.child1_count = data.child1_count
+        cc.particle = data.particle
+        self._cells.set_cell(x, y, cc)
+
+    def get_cell(self, x: int, y: int) -> CellContent:
+        return self._cells.get_cell(x, y)
+
+    def get_cells(self, x=0, y=0, w=tile_size, h=tile_size):
+        # veeery slow
+        result = []
+        for yy in range(h):
+            row = []
+            result.append(row)
+            for xx in range(w):
+                row.append(self.get_cell(x + xx, y + yy))
+        return result
+
+    def count_cells_of_type(self, cell_type: int) -> int:
+        cnt = 0
+        for row in self.get_cells():
+            for cell in row:
+                if cell.cell_type == cell_type:
+                    cnt += 1
+        return cnt

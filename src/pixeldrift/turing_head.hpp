@@ -24,7 +24,7 @@ void turing_head_system_tick(struct World * world) {
     turing_head.state = cmd.get_state();
 
     auto delta = kDirectionToDelta[cmd.get_movement()];
-    // if (world->at(x+delta.dx, y+delta.dy).block != kBorder) {
+    // if (world->at(x+delta.dx, y+delta.dy).cell_type != kBorder) {
     //   x += delta.dx;
     //   y += delta.dy;
     // }

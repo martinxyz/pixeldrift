@@ -2,10 +2,18 @@
 #include <cstdint>
 #include <vector>
 
-struct TileContent {
-  uint8_t block : 4;
-  uint8_t direction : 3;
-  uint8_t particle : 1;
+struct CellType {
+  uint8_t child1 = 0;
+  uint8_t child2 = 0;
+  uint8_t child1_maxcount = 0;
+};
+
+struct CellContent {
+  uint8_t cell_type = 0;
+  uint8_t child1_count = 0;
+  // uint8_t direction : 3;
+  uint8_t particle : 1 = 0;
+  // uint8_t energy;
 };
 
 struct Tile {
@@ -13,18 +21,18 @@ struct Tile {
   static constexpr int size = (1 << size_log2);
   static constexpr int padding = 2;
 
-  TileContent data[(size + 2*padding) * (size + 2*padding)]{};
+  CellContent data[(size + 2*padding) * (size + 2*padding)]{};
   static constexpr int stride_x = 1;
   static constexpr int stride_y = size+2*padding;
   static constexpr int stride_z = stride_y - stride_x;
-  TileContent * data_inside() {
+  CellContent * data_inside() {
     return data + padding*stride_y + padding*stride_x;
   }
 };
 
 class TorusTileStore {
  public:
-  inline TileContent& at(int x, int y) {
+  inline CellContent& at(int x, int y) {
     bool odd = (static_cast<unsigned>(y) / Tile::size) % 2 != 0;
     if (odd) x += Tile::size/2;
     // note: can be optimized by storing pointer to inside of padding

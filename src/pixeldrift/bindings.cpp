@@ -9,6 +9,18 @@ namespace py = pybind11;
 
 using array_u8 = py::array_t<uint8_t, py::array::c_style>;
 
+CellContent get_cell(World &world, int x, int y) {
+  int x_axial = x - static_cast<unsigned>(y)/2;
+  int y_axial = y;
+  return world.map.at(x_axial, y_axial);
+}
+
+void set_cell(World &world, int x, int y, CellContent value) {
+  int x_axial = x - static_cast<unsigned>(y)/2;
+  int y_axial = y;
+  world.map.at(x_axial, y_axial) = value;
+}
+
 array_u8 get_particles(World &world, int x0, int y0, int w, int h) {
   if (w <= 0) throw std::invalid_argument("w must be positive");
   if (h <= 0) throw std::invalid_argument("h must be positive");
@@ -73,8 +85,29 @@ double count_lut_filter(World &world, array_u8 &arr) {
 PYBIND11_MODULE(pixeldrift, m) {
   m.attr("tile_size") = Tile::size;
 
+  py::class_<CellType>(m, "CellType")
+      .def(py::init<>())
+      .def_readwrite("child1", &CellType::child1)
+      .def_readwrite("child2", &CellType::child2)
+      .def_readwrite("child1_maxcount", &CellType::child1_maxcount);
+
+  py::class_<CellContent>(m, "CellContent")
+      .def(py::init<>())
+      .def_readwrite("cell_type", &CellContent::cell_type)
+      .def_readwrite("child1_count", &CellContent::child1_count)
+      .def_property("particle",
+                    [](const CellContent &cc) { return cc.particle ? true : false; },
+                    [](CellContent &cc, bool value) { cc.particle = value ? 1 : 0; }
+                    );
+
   py::class_<World>(m, "World")
       .def(py::init<>())
+
+      .def_readwrite("cell_types", &World::cell_types)
+      .def("get_cell", &get_cell)
+      .def("set_cell", &set_cell)
+      .def("tick6_single", &World::tick6_single)
+
       .def("get_particles", &get_particles)
       .def("set_particles", &set_particles)
       .def("apply_lut_filter", &apply_lut_filter)
