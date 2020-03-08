@@ -7,7 +7,13 @@ To be described.
 ```bash
 git submodule update --init --recursive
 
-pip3 install -e .
+# OPTIONAL: set optimization flags (default is just -O3)
+# on ARM: -mcpu=native
+# on x86: -march=native
+# remove the 'build' directory after changing this
+#export CXXFLAGS='-march=native'
+
+pip3 install -v -e .
 ```
 
 # Tests
