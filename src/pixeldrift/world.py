@@ -28,6 +28,9 @@ class World():  # to be changed... World(tiles)
     def tick(self, count=1):
         return self._world.tick(count)
 
+    def tick6(self):
+        return self._world.tick6()
+
     def tick6_single(self, direction: int):
         return self._world.tick6_single(direction)
 

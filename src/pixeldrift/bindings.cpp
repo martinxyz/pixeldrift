@@ -21,7 +21,8 @@ void set_cell(World &world, int x, int y, CellContent value) {
   world.map.at(x_axial, y_axial) = value;
 }
 
-array_u8 get_particles(World &world, int x0, int y0, int w, int h) {
+template <int channel>
+array_u8 get_channel(World &world, int x0, int y0, int w, int h) {
   if (w <= 0) throw std::invalid_argument("w must be positive");
   if (h <= 0) throw std::invalid_argument("h must be positive");
   auto result = array_u8(h*w);
@@ -32,14 +33,18 @@ array_u8 get_particles(World &world, int x0, int y0, int w, int h) {
       // API uses offset coordinates, while tile storage is axial
       int x_axial = x0 + x - static_cast<unsigned>(y0 + y)/2;
       int y_axial = y0 + y;
-      uint8_t value = world.map.at(x_axial, y_axial).particle ? 1 : 0;
+      CellContent &cc = world.map.at(x_axial, y_axial);
+      uint8_t value = 255;
+      if (channel == 0) value = cc.particle ? 1 : 0;
+      if (channel == 1) value = cc.cell_type;
       result.mutable_at(y, x) = value;   // lots of load instructions (numpy shape, writeable check, etc.)
     }
   }
   return result;
 }
 
-void set_particles(World &world, array_u8 &arr, int x0, int y0) {
+template <int channel>
+void set_channel(World &world, array_u8 &arr, int x0, int y0) {
   auto info = arr.request();
   if (info.ndim != 2) {
     throw std::invalid_argument("wrong number of dimensions");
@@ -53,7 +58,12 @@ void set_particles(World &world, array_u8 &arr, int x0, int y0) {
       int x_axial = x0 + x - static_cast<unsigned>(y0 + y)/2;
       int y_axial = y0 + y;
       uint8_t value = arr.at(y, x) ? 1 : 0;
-      world.map.at(x_axial, y_axial).particle = value;
+      CellContent &cc = world.map.at(x_axial, y_axial);
+      if (channel == 0) cc.particle = value;
+      if (channel == 1) {
+        cc.cell_type = value;
+        cc.child1_count = 0;
+      }
     }
   }
 }
@@ -106,10 +116,13 @@ PYBIND11_MODULE(pixeldrift, m) {
       .def_readwrite("cell_types", &World::cell_types)
       .def("get_cell", &get_cell)
       .def("set_cell", &set_cell)
+      .def("tick6", &World::tick6)
       .def("tick6_single", &World::tick6_single)
 
-      .def("get_particles", &get_particles)
-      .def("set_particles", &set_particles)
+      .def("get_particles", &get_channel<0>)
+      .def("set_particles", &set_channel<0>)
+      .def("get_cell_types", &get_channel<1>)
+      .def("set_cell_types", &set_channel<1>)
       .def("apply_lut_filter", &apply_lut_filter)
       .def("count_lut_filter", &count_lut_filter)
       .def("tick", &World::tick);

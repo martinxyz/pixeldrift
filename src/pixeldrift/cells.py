@@ -29,7 +29,7 @@ class Cells():
         """Get a minimal bounding box that includes all core cells"""
         return (0, 0, tile_size, tile_size)
 
-    def get_data(self, x=0, y=0, w=tile_size, h=tile_size):
+    def get_data(self, x=0, y=0, w=tile_size, h=tile_size, channel='particles'):
         """Get a copy of the cell data in a region.
 
         Returns a new numpy array of type 'uint8' and shape (h, w).
@@ -38,9 +38,9 @@ class Cells():
         uses offset coordinates. If y is even the array will be odd-rows-right,
         otherwise odd-rows-left.
         """
-        return self._cells.get_particles(x, y, w, h)
+        return getattr(self._cells, 'get_' + channel)(x, y, w, h)
 
-    def set_data(self, data, x=0, y=0):
+    def set_data(self, data, x=0, y=0, channel='particles'):
         """Set the cell data of a region.
 
         Data must be a numpy array of type 'uint8' and can have any 2d-shape.
@@ -49,7 +49,7 @@ class Cells():
 
         Same offset coordinates apply as for get_data().
         """
-        return self._cells.set_particles(data.astype('uint8'), x, y)
+        return getattr(self._cells, 'set_' + channel)(data.astype('uint8'), x, y)
 
     def get_mask(self, x=0, y=0, w=tile_size, h=tile_size):
         """Get the bitmask for core cells in a region.

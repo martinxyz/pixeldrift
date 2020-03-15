@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <memory>
+#include <random>
+#include <algorithm>
 #include <entt/entity/registry.hpp>
 #include "components.hpp"
 
@@ -12,6 +14,7 @@ struct World {
   entt::registry registry;
   TorusTileStore map;
   std::vector<CellType> cell_types;
+  std::minstd_rand rng;
 
   void tick(int n=1) {
     for (int i = 0; i < n; ++i) {
@@ -144,34 +147,76 @@ struct World {
     }
   }
 
+  struct Transaction {
+    bool split{false};
+    CellContent child1{};
+    CellContent child2{};
+  };
+
   inline void process_line(CellContent * p, int stride, int count) {
     CellContent prev = *(p - stride);
     CellContent cur = *(p);
+    Transaction prev_to_cur = get_transaction(prev, cur);
     for (int i=0; i<count; i++) {
       CellContent next = *(p + stride);
-      *p = process_one(prev, cur, next);
+      Transaction cur_to_next = get_transaction(cur, next);
+      *p = execute_transactions(/* prev, */ prev_to_cur, cur, cur_to_next /*, next*/);
       p += stride;
       prev = cur;
       cur = next;
+      prev_to_cur = cur_to_next;
     }
   }
 
-  inline CellContent process_one(CellContent prev, CellContent cur, CellContent next) {
-    if (cur.cell_type != 0 && next.cell_type == 0) {
-      // block at current location can split, and creates child1 here
-      CellType ct = cell_types[cur.cell_type];
-      return {
-        .cell_type = ct.child1
+  inline Transaction get_transaction(CellContent cur, CellContent next) {
+    // Much more fun, but fails unittests: (make configurable?)
+    // auto r = rng();
+    // bool skip_transaction = r & 0x00100000;
+    // bool child1_first = r & 0x01000000;
+
+    bool skip_transaction = false;
+    bool child1_first = true;
+
+    if (skip_transaction) return {};
+    CellType cur_ct = cell_types[cur.cell_type];
+    if (next.cell_type == 0 &&
+        cur.cell_type != 0 &&
+        cur.child1_count < cur_ct.child1_maxcount) {
+      CellContent child1 {
+        .cell_type = cur_ct.child1,
+        .child1_count = static_cast<uint8_t>(std::min(cur.child1_count + 1, 255)),
       };
-      // res.child1_count = blockClasses[cur.cell_type].child1;
-    }
-    if (cur.cell_type == 0) {
-      // block at previous location creates child2 here
-      CellType ct = cell_types[prev.cell_type];
+      CellContent child2 {
+        .cell_type = cur_ct.child2,
+      };
       return {
-        .cell_type = ct.child2
+        .split = true,
+        .child1 = child1_first ? child1 : child2,
+        .child2 = child1_first ? child2 : child1,
       };
     }
+    return {};
+  }
+
+  inline CellContent execute_transactions(/* CellContent prev, */
+                                          Transaction prev_to_cur,
+                                          CellContent cur,
+                                          Transaction cur_to_next
+                                          /* CellContent next */) {
+    // CellType cur_ct = cell_types[cur.cell_type];
+    // CellType prev_ct = cell_types[prev.cell_type];
+
+    // block at previous location creates child2 here
+    if (prev_to_cur.split) {
+      assert(!cur_to_next.split);
+      return prev_to_cur.child2;
+    }
+
+    // block at current location creates child1 here
+    if (cur_to_next.split) {
+      return cur_to_next.child1;
+    }
+
     // current location does not change its blockClasses
     return cur;
   }

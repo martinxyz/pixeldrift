@@ -5,7 +5,7 @@
 struct CellType {
   uint8_t child1 = 0;
   uint8_t child2 = 0;
-  uint8_t child1_maxcount = 0;
+  uint8_t child1_maxcount = 255;
 };
 
 struct CellContent {
