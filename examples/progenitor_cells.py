@@ -23,10 +23,10 @@ for i in range(10):
     y = random.randrange(tile_size)
     w.set_cell(x, y, CellContent(cell_type=1, child1_count=0, particle=0))
 
-for k in range(6*20):
+for k in range(1*20):
     filename = f'outputs/progenitor_{k:04}.png'
     render_cells(w.cells, filename, padding=5, grid=False)
 
-    # w.tick6()
+    w.tick6()
     # w.tick6_single(k%6)
-    w.tick6_single(random.randrange(6))
+    # w.tick6_single(random.randrange(6))

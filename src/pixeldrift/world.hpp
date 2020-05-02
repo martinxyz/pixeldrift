@@ -160,7 +160,7 @@ struct World {
     for (int i=0; i<count; i++) {
       CellContent next = *(p + stride);
       Transaction cur_to_next = get_transaction(cur, next);
-      *p = execute_transactions(/* prev, */ prev_to_cur, cur, cur_to_next /*, next*/);
+      *p = execute_transactions(prev_to_cur, cur, cur_to_next);
       p += stride;
       prev = cur;
       cur = next;
@@ -170,12 +170,12 @@ struct World {
 
   inline Transaction get_transaction(CellContent cur, CellContent next) {
     // Much more fun, but fails unittests: (make configurable?)
-    // auto r = rng();
-    // bool skip_transaction = r & 0x00100000;
-    // bool child1_first = r & 0x01000000;
+    auto r = rng();
+    bool skip_transaction = r & 0x00100000;
+    bool child1_first = r & 0x01000000;
 
-    bool skip_transaction = false;
-    bool child1_first = true;
+    // bool skip_transaction = false;
+    // bool child1_first = true;
 
     if (skip_transaction) return {};
     CellType cur_ct = cell_types[cur.cell_type];
@@ -198,26 +198,21 @@ struct World {
     return {};
   }
 
-  inline CellContent execute_transactions(/* CellContent prev, */
-                                          Transaction prev_to_cur,
+  inline CellContent execute_transactions(Transaction prev_to_cur,
                                           CellContent cur,
-                                          Transaction cur_to_next
-                                          /* CellContent next */) {
-    // CellType cur_ct = cell_types[cur.cell_type];
-    // CellType prev_ct = cell_types[prev.cell_type];
-
-    // block at previous location creates child2 here
+                                          Transaction cur_to_next) {
+    // prev creates child2
     if (prev_to_cur.split) {
       assert(!cur_to_next.split);
       return prev_to_cur.child2;
     }
 
-    // block at current location creates child1 here
+    // cur creates child1
     if (cur_to_next.split) {
       return cur_to_next.child1;
     }
 
-    // current location does not change its blockClasses
+    // noop
     return cur;
   }
 
