@@ -5,7 +5,7 @@ import numpy as np
 
 class CellContent(NamedTuple):
     cell_type: int = 0
-    child1_count: int = 0
+    child_count: int = 0
     particle: bool = False
 
 class Cells():
@@ -76,7 +76,7 @@ class Cells():
     def set_cell(self, x: int, y: int, data: CellContent):
         cc = _CellContent()
         cc.cell_type = data.cell_type
-        cc.child1_count = data.child1_count
+        cc.child_count = data.child_count
         cc.particle = data.particle
         self._cells.set_cell(x, y, cc)
 

@@ -62,7 +62,7 @@ void set_channel(World &world, array_u8 &arr, int x0, int y0) {
       if (channel == 0) cc.particle = value;
       if (channel == 1) {
         cc.cell_type = value;
-        cc.child1_count = 0;
+        cc.child_count = 0;
       }
     }
   }
@@ -97,14 +97,13 @@ PYBIND11_MODULE(pixeldrift, m) {
 
   py::class_<CellType>(m, "CellType")
       .def(py::init<>())
-      .def_readwrite("child1", &CellType::child1)
-      .def_readwrite("child2", &CellType::child2)
-      .def_readwrite("child1_maxcount", &CellType::child1_maxcount);
+      .def_readwrite("child", &CellType::child)
+      .def_readwrite("child_maxcount", &CellType::child_maxcount);
 
   py::class_<CellContent>(m, "CellContent")
       .def(py::init<>())
       .def_readwrite("cell_type", &CellContent::cell_type)
-      .def_readwrite("child1_count", &CellContent::child1_count)
+      .def_readwrite("child_count", &CellContent::child_count)
       .def_property("particle",
                     [](const CellContent &cc) { return cc.particle ? true : false; },
                     [](CellContent &cc, bool value) { cc.particle = value ? 1 : 0; }

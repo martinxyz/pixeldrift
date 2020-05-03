@@ -3,21 +3,22 @@
 #include <vector>
 
 struct CellType {
-  uint8_t child1 = 0;
-  uint8_t child2 = 0;
-  uint8_t child1_maxcount = 255;
+  uint8_t child = 0;
+  uint8_t child_maxcount = 255;
+  uint8_t skip_transaction_p = 0;  // probability (0 = never, 128 = always)
+  uint8_t child_at_parent_location_p = 0;  // probability (0 = never, 128 = always)
 };
 
 struct CellContent {
   uint8_t cell_type = 0;
-  uint8_t child1_count = 0;
+  uint8_t child_count = 0;
   // uint8_t direction : 3;
   uint8_t particle : 1 = 0;
   // uint8_t energy;
 };
 
 struct Tile {
-  static constexpr int size_log2 = 7;
+  static constexpr int size_log2 = 6;
   static constexpr int size = (1 << size_log2);
   static constexpr int padding = 2;
 
@@ -58,14 +59,6 @@ class TorusTileStore {
   }
  private:
   Tile tile_{};
-};
-
-enum Block {
-  kBorder = 0,
-  kEmpty,
-  kWall,
-  kFood,
-  kAgent,
 };
 
 enum Direction {

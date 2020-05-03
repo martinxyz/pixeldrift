@@ -147,6 +147,12 @@ struct World {
     }
   }
 
+  inline bool probability(uint8_t p) {
+    // if (p == 0) return false;
+    // if (p >= 128) return true;
+    return rng() % 128 < p;
+  }
+
   struct Transaction {
     bool split{false};
     CellContent child1{};
@@ -169,26 +175,22 @@ struct World {
   }
 
   inline Transaction get_transaction(CellContent cur, CellContent next) {
-    // Much more fun, but fails unittests: (make configurable?)
-    auto r = rng();
-    bool skip_transaction = r & 0x00100000;
-    bool child1_first = r & 0x01000000;
-
-    // bool skip_transaction = false;
-    // bool child1_first = true;
-
-    if (skip_transaction) return {};
     CellType cur_ct = cell_types[cur.cell_type];
+    if (probability(cur_ct.skip_transaction_p)) {
+      return {};
+    }
+
     if (next.cell_type == 0 &&
         cur.cell_type != 0 &&
-        cur.child1_count < cur_ct.child1_maxcount) {
+        cur.child_count < cur_ct.child_maxcount) {
       CellContent child1 {
-        .cell_type = cur_ct.child1,
-        .child1_count = static_cast<uint8_t>(std::min(cur.child1_count + 1, 255)),
+        .cell_type = cur.cell_type,
+        .child_count = static_cast<uint8_t>(std::min(cur.child_count + 1, 255)),
       };
       CellContent child2 {
-        .cell_type = cur_ct.child2,
+        .cell_type = cur_ct.child,
       };
+      bool child1_first = probability(cur_ct.child_at_parent_location_p);
       return {
         .split = true,
         .child1 = child1_first ? child1 : child2,

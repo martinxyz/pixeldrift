@@ -4,9 +4,8 @@ from .cells import Cells, CellContent
 from typing import NamedTuple, List
 
 class CellType(NamedTuple):
-    child1: int
-    child2: int
-    child1_maxcount: int = 0
+    child: int
+    child_maxcount: int = 0
 
 class World():  # to be changed... World(tiles)
     def __init__(self):
@@ -41,9 +40,8 @@ class World():  # to be changed... World(tiles)
             v = _CellType()
             # for name in CellType._fields:
             #     setattr(v, name, ct[name])
-            v.child1 = ct.child1
-            v.child2 = ct.child2
-            v.child1_maxcount = ct.child1_maxcount
+            v.child = ct.child
+            v.child_maxcount = ct.child_maxcount
             types.append(v)
         self._world.cell_types = types
 
