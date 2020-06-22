@@ -1,6 +1,12 @@
 # pixeldrift
 
-To be described.
+Has been ported to Rust and continued here: https://github.com/martinxyz/progenitor
+
+This repo is abandoned.
+
+Still good as a template for a mixed C++/Python project. Note: setting up a
+mixed Rust/Python project was so much easier in comparison, the build setup was
+almost a no-op.
 
 # Build and Install
 
